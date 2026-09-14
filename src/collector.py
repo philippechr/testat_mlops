@@ -33,12 +33,12 @@ def main():
         try:
             result = subprocess.run(
                 [sys.executable, "-u", str(PIPELINE)],
-                timeout=90,
+                timeout=900,
                 check=False,
             )
             success = result.returncode == 0
         except subprocess.TimeoutExpired:
-            logging.error("Abruf nach 90 Sekunden abgebrochen.")
+            logging.error("Abruf nach 900 Sekunden abgebrochen.")
             success = False
 
         if stop.is_set():
