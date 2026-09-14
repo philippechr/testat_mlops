@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -10,6 +11,7 @@ import hopsworks
 import pandas as pd
 import requests
 from dotenv import load_dotenv
+from weather_features import prepare_features
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 RAW_DIR = PROJECT_DIR / "data" / "raw"
@@ -96,10 +98,10 @@ def save_observation(observation):
     print(f"Lokal gespeichert: {path}", flush=True)
 
 
-def load_observations():
-    files = sorted(RAW_DIR.glob("*.json"))
+def load_observations(data_dir):
+    files = sorted(data_dir.glob("*.json"))
     if not files:
-        raise SystemExit(f"Keine Beobachtungen in {RAW_DIR} vorhanden.")
+        raise SystemExit(f"Keine Beobachtungen in {data_dir} vorhanden.")
     rows = []
     for path in files:
         try:
@@ -125,6 +127,8 @@ def load_observations():
         raise SystemExit("Unvollständige Beobachtungen gefunden. JSON-Dateien prüfen.")
     for column in numeric:
         frame[column] = pd.to_numeric(frame[column], errors="raise").astype("float64")
+    if not all(math.isfinite(value) for value in frame[numeric].to_numpy().flat):
+        raise SystemExit("Nicht-endliche Messwerte gefunden. Quelldaten prüfen.")
     for column in ["city", "country"]:
         frame[column] = frame[column].astype(str)
     # Hopsworks interprets integer event times as Unix milliseconds.
@@ -139,39 +143,114 @@ def load_observations():
     return frame.sort_values(["location_id", "observed_at"]).reset_index(drop=True)
 
 
-def upload_observations(frame):
+def upload_all(observations, features, training):
     project = hopsworks.login(
         host=required("HOPSWORKS_HOST"),
         project=required("HOPSWORKS_PROJECT"),
         api_key_value=required("HOPSWORKS_API_KEY"),
     )
     feature_store = project.get_feature_store()
-    group = feature_store.get_or_create_feature_group(
-        name="weather_observations",
-        version=1,
-        description="OpenWeather observations. observed_at is Unix time in milliseconds, UTC.",
-        primary_key=["location_id", "observed_at"],
-        event_time="observed_at",
-        online_enabled=True,
-    )
-    print(f"Übertrage {len(frame)} Beobachtungen nach Hopsworks ...", flush=True)
-    group.insert(frame, operation="upsert", write_options={"wait_for_job": True})
-    print(
-        "Hopsworks-Insert abgeschlossen: weather_observations, Version 1.", flush=True
-    )
+    groups = [
+        (
+            "weather_observations",
+            1,
+            observations,
+            "OpenWeather observations. observed_at is Unix time in milliseconds, UTC.",
+        ),
+        (
+            "weather_features",
+            2,
+            features,
+            "Real weather features: prior 3h mean of hourly means (3/3 slots, gaps <=2h), "
+            "plus temperature at prediction time. All timestamps are UTC Unix milliseconds.",
+        ),
+        (
+            "weather_training_features",
+            2,
+            training,
+            "Weather features with observed temperature at +3h (+/-30min). "
+            "Only mature labels; no generated or interpolated weather values.",
+        ),
+    ]
+    for name, version, frame, description in groups:
+        if frame.empty:
+            print(
+                f"{name}: Noch keine ausreichenden echten Daten; Upload übersprungen.",
+                flush=True,
+            )
+            continue
+        group = feature_store.get_or_create_feature_group(
+            name=name,
+            version=version,
+            description=description,
+            primary_key=["location_id", "observed_at"],
+            event_time="observed_at",
+            online_enabled=True,
+        )
+        print(f"Übertrage {len(frame)} Zeilen nach {name} ...", flush=True)
+        group.insert(frame, operation="upsert", write_options={"wait_for_job": True})
+        print(f"Hopsworks-Insert abgeschlossen: {name}, Version {version}.", flush=True)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument(
         "--upload-only",
         action="store_true",
-        help="Nur bestehende JSON-Dateien hochladen; kein OpenWeather-Abruf.",
+        help="Lokale Daten aufbereiten und hochladen; kein OpenWeather-Abruf.",
+    )
+    modes.add_argument(
+        "--prepare-only",
+        action="store_true",
+        help="Nur lokale Daten aufbereiten und anzeigen; keine API-Aufrufe.",
+    )
+    parser.add_argument(
+        "--data-dir",
+        type=Path,
+        default=RAW_DIR,
+        help="JSON-Quellordner, z.B. data/sample. Nur mit einem der obigen Modi.",
     )
     args = parser.parse_args()
-    if not args.upload_only:
+    data_dir = args.data_dir.resolve()
+    if not (args.upload_only or args.prepare_only):
+        if data_dir != RAW_DIR.resolve():
+            parser.error(
+                "--data-dir ist nur mit --upload-only oder --prepare-only erlaubt."
+            )
         save_observation(fetch_weather())
-    upload_observations(load_observations())
+    observations = load_observations(data_dir)
+    features, training = prepare_features(observations)
+    print(f"Beobachtungen: {len(observations)}", flush=True)
+    for location_id, group in observations.groupby("location_id"):
+        span = (group["observed_at"].max() - group["observed_at"].min()) / 3_600_000
+        print(
+            f"Standort {location_id}: gesammelte Zeitspanne {span:.1f} Stunden.",
+            flush=True,
+        )
+    print(f"Gültige Feature-Zeilen: {len(features)}", flush=True)
+    print(f"Trainingszeilen mit echtem Label: {len(training)}", flush=True)
+    if features.empty:
+        print(
+            "Warte auf 3h Historie mit allen 3 belegten Stundenfenstern "
+            "und ohne Lücken über 2h.",
+            flush=True,
+        )
+    elif training.empty:
+        print(
+            "Features vorhanden. Warte auf passende spätere Temperaturen "
+            "und Ablauf des Label-Zeitfensters (+3h30min).",
+            flush=True,
+        )
+    if args.prepare_only:
+        if not features.empty:
+            print("Letzte Feature-Zeilen (Zeitstempel in UTC-Millisekunden):")
+            print(features.tail(5).to_string(index=False))
+        if not training.empty:
+            print("Letzte Trainingszeilen:")
+            print(training.tail(5).to_string(index=False))
+        return
+    upload_all(observations, features, training)
 
 
 if __name__ == "__main__":
