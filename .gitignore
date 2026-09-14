@@ -11,5 +11,8 @@ __pycache__/
 # Laufende lokale Datensammlung
 data/raw/
 
+# Predictions
+data/predictions/
+
 # macOS
 .DS_Store

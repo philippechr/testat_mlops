@@ -7,7 +7,7 @@ import sys
 import threading
 from pathlib import Path
 
-INTERVAL_SECONDS = 60 * 60
+INTERVAL_SECONDS = 30 * 60
 RETRY_SECONDS = 5 * 60
 PIPELINE = Path(__file__).with_name("feature_pipeline.py")
 stop = threading.Event()
@@ -28,7 +28,7 @@ def main():
     if not PIPELINE.is_file():
         raise SystemExit(f"Skript fehlt: {PIPELINE}")
 
-    logging.info("Sammler gestartet: sofortiger Abruf, danach jede Stunde.")
+    logging.info("Sammler gestartet: sofortiger Abruf, danach alle 30 Minuten.")
     while not stop.is_set():
         try:
             result = subprocess.run(
@@ -45,7 +45,7 @@ def main():
             break
         delay = INTERVAL_SECONDS if success else RETRY_SECONDS
         if success:
-            logging.info("Abruf erfolgreich. Nächster Abruf in 60 Minuten.")
+            logging.info("Abruf erfolgreich. Nächster Abruf in 30 Minuten.")
         else:
             logging.error("Abruf fehlgeschlagen. Neuer Versuch in 5 Minuten.")
         stop.wait(delay)
