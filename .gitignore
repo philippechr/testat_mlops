@@ -8,11 +8,11 @@ __pycache__/
 *.pyc
 .venv/
 
-# Laufende lokale Datensammlung (die Historie)
-# data/raw/
+# Laufende lokale Datensammlung
+data/raw/
 
 # Predictions
-# data/predictions/
+data/predictions/
 
 # macOS
 .DS_Store
