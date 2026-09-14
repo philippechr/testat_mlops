@@ -28,11 +28,8 @@ docker compose run --rm python python src/feature_pipeline.py --prepare-only --d
 
 Die Kopie ergänzt beziehungsweise überschreibt Dateien, entfernt aber keine älteren Dateien aus `data/sample/`. Bei einer späteren Neuauswahl den Inhalt bewusst prüfen.
 
-## 3. Vollständigen Ablauf mit frischem Hopsworks-Projekt prüfen
+## 3. Vollständigen Ablauf mit bestehendem Hopsworks-Projekt prüfen
 
-- [ ] In Hopsworks ein neues Projekt erstellen.
-- [ ] In `.env` Projektnamen und gegebenenfalls Host und API-Key anpassen.
-- [ ] MLflow starten:
 
 ```bash
 docker compose up -d mlflow

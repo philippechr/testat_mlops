@@ -20,18 +20,18 @@ cd testat_mlops
 cp .env.example .env
 ```
 
-In `.env` die Hopsworks-Zugangsdaten eintragen. Für Replay bleibt der OpenWeather-Key leer:
+Die Datei `.env.example` in `.env` umbenennen und Zugangsdaten (HOPSWORKS_API_KEY, optional: OPENWEATHER_API_KEY) aus MS-Teams-Abgabe eintragen. Für Replay bleibt der OpenWeather-Key leer:
 
 ```dotenv
-HOPSWORKS_HOST=eu-west.cloud.hopsworks.ai
-HOPSWORKS_PROJECT=DEIN_PROJEKTNAME
-HOPSWORKS_API_KEY=DEIN_HOPSWORKS_API_KEY
-OPENWEATHER_API_KEY=
+OPENWEATHER_API_KEY=siehe_msTeams <--------------
 WEATHER_CITY=Windisch
 WEATHER_COUNTRY=CH
+HOPSWORKS_HOST=eu-west.cloud.hopsworks.ai
+HOPSWORKS_PROJECT=testat_fhnw_mlops
+HOPSWORKS_API_KEY=siehe_msTeams <--------------
 ```
 
-Host bei Bedarf anpassen. `.env` nicht in Git aufnehmen. Python muss lokal nicht installiert sein: Python 3.12 und die direkten Paketversionen sind in `compose.yaml` festgelegt. Das Image verwendet `linux/amd64`, auf Apple Silicon mit Emulation. Der Hopsworks-Client muss zur verwendeten Plattformversion passen.
+Python muss lokal nicht installiert sein: Python 3.12 und die direkten Paketversionen sind in `compose.yaml` festgelegt. Das Image verwendet `linux/amd64`, auf Apple Silicon mit Emulation. Der Hopsworks-Client muss zur verwendeten Plattformversion passen.
 
 ### 2. Image bauen und MLflow starten
 
