@@ -9,10 +9,10 @@ __pycache__/
 .venv/
 
 # Laufende lokale Datensammlung
-# data/raw/
+data/raw/
 
 # Predictions
-# data/predictions/
+data/predictions/
 
 # macOS
 .DS_Store
