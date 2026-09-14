@@ -20,7 +20,7 @@ cd testat_mlops
 cp .env.example .env
 ```
 
-Die Datei `.env.example` in `.env` umbenennen und Zugangsdaten (HOPSWORKS_API_KEY, optional: OPENWEATHER_API_KEY) aus MS-Teams-Abgabe eintragen. Für Replay bleibt der OpenWeather-Key leer:
+Falls noch nicht erfolgt, die Datei `.env.example` in `.env` umbenennen und Zugangsdaten (HOPSWORKS_API_KEY,  OPENWEATHER_API_KEY) aus MS-Teams-Abgabe eintragen. Für Replay bleibt der OpenWeather-Key leer:
 
 ```dotenv
 OPENWEATHER_API_KEY=siehe_msTeams <--------------
