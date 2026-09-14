@@ -143,8 +143,9 @@ Die Inferenz lädt das Modell lokal über `models/latest.json`. Dies ist laut Au
 MLflow speichert seine Daten in einem Docker-Volume. Dieses wird nicht über Git übertragen. Das mitgelieferte Modell und erneutes Training sind davon unabhängig.
 
 ## Optional: Live-Sammlung und Live-Inferenz
+„Optional“ bezieht sich auf die Wiederholung durch den Dozenten. Der Bewertungsablauf mit Beispieldaten benötigt keine laufende Datensammlung.
 
-Dieser Abschnitt ist für den Bewertungsablauf mit Beispieldaten nicht erforderlich. Er ermöglicht den separaten Nachweis einer Vorhersage mit frisch abgerufenem RT-Feature.
+Die Verwendung eines frisch abgerufenen RT-Features gehört zur Projektumsetzung und wird durch einen erfolgreichen Live-Durchlauf nachgewiesen. Replay ersetzt diesen Nachweis nicht.
 
 Einen gültigen `OPENWEATHER_API_KEY` in `.env` eintragen und den Collector starten:
 
