@@ -1,5 +1,15 @@
+# Zugangsdaten
 .env
+.env.*
+!.env.example
+
+# Python
 __pycache__/
 *.pyc
-data/*
-models/*
+.venv/
+
+# Laufende lokale Datensammlung
+data/raw/
+
+# macOS
+.DS_Store
