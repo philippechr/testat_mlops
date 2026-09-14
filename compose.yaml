@@ -1,0 +1,41 @@
+services:
+  python:
+    platform: linux/amd64
+
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM python:3.12-slim-bookworm
+
+        ENV PYTHONUNBUFFERED=1 \
+            PYTHONDONTWRITEBYTECODE=1
+
+        WORKDIR /app
+
+        RUN apt-get update \
+            && apt-get install -y --no-install-recommends \
+               build-essential libgomp1 ca-certificates \
+               pkg-config libssl-dev \
+            && rm -rf /var/lib/apt/lists/*
+
+        RUN pip install --no-cache-dir \
+            --only-binary=hops-deltalake \
+            "hopsworks[python]==5.0.7" \
+            pandas numpy scikit-learn joblib requests python-dotenv \
+            && pip check
+
+        RUN python -c "import hopsworks, deltalake, pandas, sklearn"
+
+        CMD ["sleep", "infinity"]
+
+    init: true
+    command: ["python", "-u", "/app/src/collector.py"]
+    restart: unless-stopped
+    stop_grace_period: 100s
+
+    volumes:
+      - .:/app
+
+    env_file:
+      - path: .env
+        required: false
