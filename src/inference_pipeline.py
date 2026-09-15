@@ -90,13 +90,12 @@ def get_aggregate(location_id, weather_time):
         query=group.select(["location_id", "observed_at", "temperature_mean_3h"]),
     )
     frame = view.get_batch_data(
-        start_time=weather_time - MAX_AGGREGATE_AGE,
-        end_time=weather_time + timedelta(milliseconds=1),
         primary_key=True,
         event_time=True,
         dataframe_type="pandas",
         transformed=False,
     )
+    print(f"Aus Feature View geladene Zeilen: {len(frame)}")
     if frame.empty:
         raise NotReady(
             "Keine aktuellen aggregierten Features vorhanden. Feature-Pipeline ausführen."
@@ -116,6 +115,10 @@ def get_aggregate(location_id, weather_time):
         raise NotReady("Kein Feature mit passendem Zeitpunkt verfügbar.")
     row = frame.sort_values("feature_time").iloc[-1]
     feature_time = row["feature_time"].to_pydatetime()
+    print(f"Wetterzeitpunkt: {weather_time.isoformat()}")
+    print(f"Aggregat-Zeitpunkt: {feature_time.isoformat()}")
+    print(f"Abstand: {(weather_time - feature_time).total_seconds() / 60:.1f} Minuten")
+    print(f"Originalwert observed_at: {row['observed_at']}")
     if weather_time - feature_time > MAX_AGGREGATE_AGE:
         raise NotReady(
             "Das aggregierte Feature ist zu alt. Feature-Pipeline aktualisieren."

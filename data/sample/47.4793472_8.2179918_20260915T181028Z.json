@@ -1,0 +1,12 @@
+{
+  "city": "Windisch",
+  "country": "CH",
+  "latitude": 47.4793472,
+  "longitude": 8.2179918,
+  "observed_at": "2026-09-15T18:10:28+00:00",
+  "temperature_c": 22.42,
+  "humidity_pct": 61,
+  "pressure_hpa": 1017,
+  "wind_speed_ms": 0.86,
+  "cloud_cover_pct": 35
+}

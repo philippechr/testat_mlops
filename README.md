@@ -67,8 +67,15 @@ Erwartet werden ein erfolgreicher Run im MLflow-Experiment **`windisch_temperatu
 ### 5. Historische Inferenz ausführen
 
 ```bash
-docker compose run --rm python python src/inference_pipeline.py --replay --data-dir /app/data/sample
+docker compose run --rm python python src/inference_pipeline.py --replay --data-dir /app/data/sample --at "2026-09-15T16:25:05+00:00"
 ```
+
+Die Vorhersage wird direkt im Terminal angezeigt und zusätzlich als JSON unter `data/predictions/` gespeichert.
+Die zuletzt gespeicherte Vorhersage lässt sich so erneut anzeigen:
+```bash
+docker compose run --rm python python -c "from pathlib import Path; import json; files = sorted(Path('/app/data/predictions').glob('replay_prediction_*.json')); print(json.dumps(json.loads(files[-1].read_text()), indent=2, ensure_ascii=False) if files else 'Noch keine Replay-Vorhersage vorhanden.')"
+```
+
 
 Replay verwendet eine echte gespeicherte Beobachtung nach dem Trainingszeitraum als damaligen aktuellen Temperaturwert und lädt das passende Aggregat über eine Hopsworks Feature View. Es ruft OpenWeather nicht auf und erzeugt keine künstlichen Temperaturen.
 
@@ -178,6 +185,9 @@ Alte Beispieldaten allein reichen wegen dieser Aktualitätsprüfungen nicht für
 - Alle lokalen Daten werden bei jedem Feature-Durchlauf erneut verarbeitet und hochgeladen; das ist für kleine Datensätze einfach, aber nicht für grosse Datenmengen optimiert.
 - Die anfänglichen ARM-Build-Probleme wurden durch `linux/amd64`, das passende Binärpaket und benötigte Systempakete behoben.
 - Direkte Paketversionen sind festgelegt; Basisimage und transitive Abhängigkeiten sind nicht vollständig eingefroren.
+- Im getesteten Lauf betrug der MAE des Modells 6,731 °C gegenüber 3,061 °C der Persistenzreferenz. Das Modell war damit schlechter als die einfache Referenz.
+- Für die neueste Sample-Beobachtung war kein ausreichend zeitnahes Aggregat verfügbar. Der dokumentierte Replay-Befehl verwendet deshalb einen expliziten historischen Zeitpunkt mit passendem Aggregat.
+- Die Inferenz lädt die gesamte Feature View und filtert Standort und Zeitpunkt lokal. Das ist für den kleinen Beispieldatensatz praktikabel, skaliert aber nicht für grosse Datenmengen.
 
 ## Referenzen
 

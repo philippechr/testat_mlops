@@ -187,7 +187,12 @@ def upload_all(observations, features, training):
             event_time="observed_at",
             online_enabled=True,
         )
-        print(f"Übertrage {len(frame)} Zeilen nach {name} ...", flush=True)
+        print(
+            f"Übertrage {len(frame)} Zeilen nach {name} ... "
+            "Der Hopsworks-Upload kann mehrere Minuten dauern, "
+            "auch ohne weitere Ausgabe. Bitte auf die Abschlussmeldung warten.",
+            flush=True,
+        )
         group.insert(frame, operation="upsert", write_options={"wait_for_job": True})
         print(f"Hopsworks-Insert abgeschlossen: {name}, Version {version}.", flush=True)
 
