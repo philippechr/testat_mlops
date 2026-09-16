@@ -209,7 +209,25 @@ Datenimport, Training mit MLflow, Replay und Live-Inferenz wurden erfolgreich im
 - Aufgabenstellung „Projektarbeit MLOps“, FHNW
 
 
+---------------------
 
+Für die Abgabe kannst du diese erzeugten Inhalte löschen:
+- data/raw/ – laufend gesammelte Rohdaten.
+- data/predictions/ – nachdem der Live-Nachweis nach docs/evidence/ kopiert wurde.
+- models/ – Modelle und Trainingsausgaben; der Dozent erzeugt sie beim Training neu.
+- __pycache__/, .pytest_cache/, .DS_Store – Cache-Dateien.
+- .devcontainer/ – falls noch vorhanden; eure Anleitung verwendet keine Codespaces.
+- Veraltete README-Kopien, temporäre Logs und persönliche To-do-Dateien.
+Unbedingt behalten:
+- src/ mit allen Python-Skripten.
+- compose.yaml sowie weitere darin referenzierte Dateien.
+- .env.example ohne echte Zugangsdaten.
+- README.md und .gitignore.
+- data/sample/ unverändert.
+- docs/evidence/ mit dem Live-Nachweis.
+- Eventuelle Abhängigkeitsdateien, die beim Build verwendet werden.
+.env darf lokal bleiben, gehört aber nicht auf GitHub. Den versteckten Ordner .git/ ebenfalls behalten – er enthält deine Git-Versionsverwaltung.
+Das lokale MLflow-Volume musst du nicht löschen; es wird ohnehin nicht über Git abgegeben.
 
 ----- ENTFERNEN!!!!!!!! AB HIER
 
