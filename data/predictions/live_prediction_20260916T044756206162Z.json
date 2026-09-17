@@ -1,0 +1,19 @@
+{
+  "mode": "live",
+  "generated_at": "2026-09-16T04:47:56.206162+00:00",
+  "city": "Windisch",
+  "country": "CH",
+  "location_id": "47.479347_8.217992",
+  "model_run_id": "15786f668a9d4af68e75e1f8d2428269",
+  "weather_observed_at": "2026-09-16T04:47:45+00:00",
+  "aggregate_observed_at": "2026-09-16T04:33:10+00:00",
+  "aggregate_lag_minutes": 14.583333333333334,
+  "feature_view": "weather_temperature_inference",
+  "feature_view_version": 2,
+  "model_inputs": {
+    "temperature_mean_3h": 17.626666666666665,
+    "temperature_current": 16.75
+  },
+  "target_time": "2026-09-16T07:47:45+00:00",
+  "predicted_temperature_c": 16.10539805429157
+}
