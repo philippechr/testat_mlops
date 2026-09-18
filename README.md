@@ -20,12 +20,12 @@ cp .env.example .env
 In der kopierten `.env` den Host, Projektnamen und API-Key des eigenen Hopsworks-Projekts eintragen. Zugangsdaten nicht ins Repository hochladen.
 
 ```dotenv
-OPENWEATHER_API_KEY=siehe_msTeams <-----------------I
+OPENWEATHER_API_KEY=siehe zugangsdaten.env.txt auf MSTeams <-----------------I
 WEATHER_CITY=Windisch
 WEATHER_COUNTRY=CH
 HOPSWORKS_HOST=eu-west.cloud.hopsworks.ai
-HOPSWORKS_PROJECT=DEIN_PROJEKTNAME
-HOPSWORKS_API_KEY=siehe_msTeams <-----------------I
+HOPSWORKS_PROJECT=testat_fhnw_mlops
+HOPSWORKS_API_KEY=siehe zugangsdaten.env.txt auf MSTeams <-----------------I
 ```
 
 Python muss lokal nicht installiert sein: Python 3.12 und die direkten Paketversionen sind in `compose.yaml` festgelegt. Das Image verwendet `linux/amd64`, auf Apple Silicon mit Emulation. Der Hopsworks-Client muss zur verwendeten Plattformversion passen.
